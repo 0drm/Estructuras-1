@@ -1,10 +1,14 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+import io
 
-st.title("Examen Diagnóstico – Estructuras 1")
-st.write("**Nombre del alumno:**")
-nombre = st.text_input("Escribe tu nombre completo")
+st.set_page_config(page_title="Diagnóstico Estructuras 1", layout="centered")
+st.title("🧱 Examen Diagnóstico – Estructuras 1")
+
+st.write("Completa el siguiente formulario. Al final podrás **descargar tu archivo CSV con los resultados**.")
+
+nombre = st.text_input("Nombre completo del alumno:")
 
 preguntas = [
     {
@@ -64,8 +68,8 @@ preguntas = [
     },
     {
         "pregunta": """Lee el siguiente fragmento:
-        "Un sistema estructural es un conjunto de elementos interrelacionados que trabajan juntos para resistir cargas y transferirlas al terreno de forma segura."
-        ¿Cuál es el propósito principal de un sistema estructural?""",
+"Un sistema estructural es un conjunto de elementos interrelacionados que trabajan juntos para resistir cargas y transferirlas al terreno de forma segura."
+¿Cuál es el propósito principal de un sistema estructural?""",
         "opciones": [
             "Servir como decoración arquitectónica",
             "Unir los materiales del edificio",
@@ -76,8 +80,8 @@ preguntas = [
     },
     {
         "pregunta": """Lee el siguiente enunciado:
-        "En una viga simplemente apoyada con carga puntual al centro, se produce un momento máximo justo en el punto medio."
-        ¿Dónde se encuentra el momento flector máximo?""",
+"En una viga simplemente apoyada con carga puntual al centro, se produce un momento máximo justo en el punto medio."
+¿Dónde se encuentra el momento flector máximo?""",
         "opciones": [
             "En los extremos",
             "En el punto medio",
@@ -91,24 +95,39 @@ preguntas = [
 respuestas_usuario = []
 correctas = 0
 
-for i, item in enumerate(preguntas):
-    st.markdown(f"**{i+1}. {item['pregunta']}**")
-    seleccion = st.radio(f"Selecciona una respuesta:", item["opciones"], key=f"q{i}")
-    respuestas_usuario.append({
-        "pregunta": item["pregunta"],
-        "respuesta_usuario": seleccion,
-        "respuesta_correcta": item["respuesta"],
-        "correcta": seleccion == item["respuesta"]
-    })
-    if seleccion == item["respuesta"]:
-        correctas += 1
+if nombre:
+    for i, item in enumerate(preguntas):
+        st.markdown(f"**{i+1}. {item['pregunta']}**")
+        seleccion = st.radio("Selecciona una respuesta:", item["opciones"], key=f"preg_{i}")
+        es_correcta = seleccion == item["respuesta"]
+        if es_correcta:
+            correctas += 1
+        respuestas_usuario.append({
+            "pregunta": item["pregunta"],
+            "respuesta_usuario": seleccion,
+            "respuesta_correcta": item["respuesta"],
+            "correcta": es_correcta
+        })
 
-if st.button("Enviar y guardar resultados"):
-    fecha = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    resultados_df = pd.DataFrame(respuestas_usuario)
-    resultados_df.insert(0, "Alumno", nombre)
-    resultados_df.insert(1, "Fecha", fecha)
-    resultados_df.insert(2, "Calificación", f"{correctas}/12")
-    resultados_df.to_csv(f"resultados_{nombre.replace(' ', '_')}_{fecha}.csv", index=False)
-    st.success("¡Respuestas guardadas correctamente!")
-    st.write(f"Tu calificación es: **{correctas} de 12**")
+    if st.button("📤 Generar y descargar resultados en CSV"):
+        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        df_resultados = pd.DataFrame(respuestas_usuario)
+        df_resultados.insert(0, "Alumno", nombre)
+        df_resultados.insert(1, "Fecha", fecha)
+        df_resultados.insert(2, "Calificación", f"{correctas}/12")
+
+        # Convertir DataFrame a CSV en memoria
+        csv_buffer = io.StringIO()
+        df_resultados.to_csv(csv_buffer, index=False)
+        csv_data = csv_buffer.getvalue().encode("utf-8")
+
+        st.success(f"Tu calificación es: {correctas} / 12")
+
+        st.download_button(
+            label="📥 Descargar archivo CSV",
+            data=csv_data,
+            file_name=f"diagnostico_{nombre.replace(' ', '_')}.csv",
+            mime="text/csv"
+        )
+else:
+    st.warning("Por favor, ingresa tu nombre completo antes de comenzar.")
