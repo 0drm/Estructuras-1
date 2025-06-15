@@ -4,7 +4,7 @@ from datetime import datetime
 import io
 
 st.set_page_config(page_title="Diagnóstico Estructuras 1", layout="centered")
-st.title("🧱 Examen Diagnóstico – Estructuras 1")
+st.title("Examen Diagnóstico – Estructuras 1")
 
 st.write("Completa el siguiente formulario. Al final podrás **descargar tu archivo CSV con los resultados**.")
 
