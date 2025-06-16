@@ -1,133 +1,119 @@
 import streamlit as st
-import pandas as pd
-from datetime import datetime
-import io
+import math
+import numpy as np
+from sympy import symbols, Eq, solve, simplify
 
-st.set_page_config(page_title="Diagnóstico Estructuras 1", layout="centered")
-st.title("Examen Diagnóstico – Estructuras 1")
+st.title("📝 Examen Diagnóstico: Estructuras 1")
+st.markdown("""
+Evalúa tus conocimientos previos en *Trigonometría, **Álgebra* y *Estática*.
+""")
 
-st.write("Completa el siguiente formulario. Al final podrás **descargar tu archivo CSV con los resultados**.")
+# Inicializar puntaje
+if 'score' not in st.session_state:
+    st.session_state.score = 0
 
-nombre = st.text_input("Nombre completo del alumno:")
+# Sección 1: Trigonometría
+st.header("🔺 Trigonometría")
+with st.expander("Preguntas 1-5"):
+    st.subheader("1. Resolución de triángulo rectángulo")
+    st.write("""
+    Dado un triángulo rectángulo con:
+    - Cateto adyacente = 6 m
+    - Hipotenusa = 10 m
+    """)
+    q1_opuesto = st.number_input("Cateto opuesto (m):", key="q1_opuesto")
+    q1_angulo1 = st.number_input("Primer ángulo agudo (°):", key="q1_angulo1")
+    q1_angulo2 = st.number_input("Segundo ángulo agudo (°):", key="q1_angulo2")
 
-preguntas = [
-    {
-        "pregunta": "¿Cuál es el valor de 2(3 + 4)^2 - 5?",
-        "opciones": ["89", "93", "77", "91"],
-        "respuesta": "89"
-    },
-    {
-        "pregunta": "Resuelve la ecuación: 3x - 7 = 2x + 5",
-        "opciones": ["x = 2", "x = 12", "x = -12", "x = -2"],
-        "respuesta": "x = 2"
-    },
-    {
-        "pregunta": "Si un triángulo rectángulo tiene un cateto de 3 cm y el otro de 4 cm, ¿cuánto mide la hipotenusa?",
-        "opciones": ["6 cm", "5 cm", "7 cm", "4.5 cm"],
-        "respuesta": "5 cm"
-    },
-    {
-        "pregunta": "¿Qué representa el seno de un ángulo en un triángulo rectángulo?",
-        "opciones": [
-            "Cateto opuesto / hipotenusa",
-            "Cateto adyacente / hipotenusa",
-            "Cateto opuesto / cateto adyacente",
-            "Hipotenusa / cateto adyacente"
-        ],
-        "respuesta": "Cateto opuesto / hipotenusa"
-    },
-    {
-        "pregunta": "¿Cuál es el valor de cos(60°)?",
-        "opciones": ["0", "0.5", "√3/2", "1"],
-        "respuesta": "0.5"
-    },
-    {
-        "pregunta": "¿Qué unidades se utilizan comúnmente para medir fuerza en el sistema internacional?",
-        "opciones": ["Joules", "Kilogramos", "Newtons", "Pascales"],
-        "respuesta": "Newtons"
-    },
-    {
-        "pregunta": "¿Cuál es el momento de una fuerza de 10 N aplicada perpendicularmente a una palanca de 2 m?",
-        "opciones": ["20 Nm", "5 Nm", "12 Nm", "8 Nm"],
-        "respuesta": "20 Nm"
-    },
-    {
-        "pregunta": "¿Cuál de las siguientes ecuaciones representa el equilibrio de fuerzas horizontales?",
-        "opciones": ["ΣM = 0", "ΣFx = 0", "ΣFy = 0", "Σa = 0"],
-        "respuesta": "ΣFx = 0"
-    },
-    {
-        "pregunta": "¿Cuál es el área de un rectángulo de 4 m de largo por 3 m de ancho?",
-        "opciones": ["12 m²", "7 m²", "14 m²", "24 m²"],
-        "respuesta": "12 m²"
-    },
-    {
-        "pregunta": "Si un vector tiene magnitud 5 y forma un ángulo de 60° con el eje X, ¿cuál es su componente horizontal?",
-        "opciones": ["2.5", "5", "3.5", "5 × cos(60°)"],
-        "respuesta": "5 × cos(60°)"
-    },
-    {
-        "pregunta": """Lee el siguiente fragmento:
-"Un sistema estructural es un conjunto de elementos interrelacionados que trabajan juntos para resistir cargas y transferirlas al terreno de forma segura."
-¿Cuál es el propósito principal de un sistema estructural?""",
-        "opciones": [
-            "Servir como decoración arquitectónica",
-            "Unir los materiales del edificio",
-            "Resistir y transferir cargas al terreno",
-            "Proteger de la lluvia y el viento"
-        ],
-        "respuesta": "Resistir y transferir cargas al terreno"
-    },
-    {
-        "pregunta": """Lee el siguiente enunciado:
-"En una viga simplemente apoyada con carga puntual al centro, se produce un momento máximo justo en el punto medio."
-¿Dónde se encuentra el momento flector máximo?""",
-        "opciones": [
-            "En los extremos",
-            "En el punto medio",
-            "En los apoyos",
-            "A un cuarto del largo"
-        ],
-        "respuesta": "En el punto medio"
-    }
-]
+    # Verificación respuesta 1
+    if st.button("Verificar Pregunta 1"):
+        correct_opuesto = math.sqrt(10*2 - 6*2)
+        correct_angulo1 = round(math.degrees(math.acos(6/10)))
+        correct_angulo2 = 90 - correct_angulo1
 
-respuestas_usuario = []
-correctas = 0
+        if abs(q1_opuesto - correct_opuesto) < 0.01 and \
+           abs(q1_angulo1 - correct_angulo1) < 0.1 and \
+           abs(q1_angulo2 - correct_angulo2) < 0.1:
+            st.success("✅ Correcto!")
+            st.session_state.score += 1
+        else:
+            st.error(f"❌ Incorrecto. Solución: Cateto opuesto = {correct_opuesto:.2f} m, Ángulos = {correct_angulo1}° y {correct_angulo2}°")
 
-if nombre:
-    for i, item in enumerate(preguntas):
-        st.markdown(f"**{i+1}. {item['pregunta']}**")
-        seleccion = st.radio("Selecciona una respuesta:", item["opciones"], key=f"preg_{i}")
-        es_correcta = seleccion == item["respuesta"]
-        if es_correcta:
-            correctas += 1
-        respuestas_usuario.append({
-            "pregunta": item["pregunta"],
-            "respuesta_usuario": seleccion,
-            "respuesta_correcta": item["respuesta"],
-            "correcta": es_correcta
-        })
+    st.subheader("2. Ecuación trigonométrica")
+    st.latex(r"\sin(\theta) = \frac{\sqrt{3}}{2} \quad (0° \leq \theta \leq 90°)")
+    q2_theta = st.number_input("Valor de θ (°):", key="q2_theta")
 
-    if st.button("📤 Generar y descargar resultados en CSV"):
-        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        df_resultados = pd.DataFrame(respuestas_usuario)
-        df_resultados.insert(0, "Alumno", nombre)
-        df_resultados.insert(1, "Fecha", fecha)
-        df_resultados.insert(2, "Calificación", f"{correctas}/12")
+    if st.button("Verificar Pregunta 2"):
+        if abs(q2_theta - 60) < 0.1:
+            st.success("✅ Correcto!")
+            st.session_state.score += 1
+        else:
+            st.error("❌ Incorrecto. θ = 60°")
 
-        # Convertir DataFrame a CSV en memoria
-        csv_buffer = io.StringIO()
-        df_resultados.to_csv(csv_buffer, index=False)
-        csv_data = csv_buffer.getvalue().encode("utf-8")
+# Sección 2: Álgebra
+st.header("➗ Álgebra")
+with st.expander("Preguntas 6-10"):
+    st.subheader("6. Sistema de ecuaciones")
+    st.write("Resuelve:")
+    st.latex(r"""
+    \begin{cases} 
+    3x + 2y = 8 \\ 
+    x - y = 1 
+    \end{cases}
+    """)
+    q6_x = st.number_input("x:", key="q6_x")
+    q6_y = st.number_input("y:", key="q6_y")
 
-        st.success(f"Tu calificación es: {correctas} / 12")
+    if st.button("Verificar Pregunta 6"):
+        if abs(q6_x - 2) < 0.1 and abs(q6_y - 1) < 0.1:
+            st.success("✅ Correcto!")
+            st.session_state.score += 1
+        else:
+            st.error("❌ Incorrecto. Solución: x = 2, y = 1")
 
-        st.download_button(
-            label="📥 Descargar archivo CSV",
-            data=csv_data,
-            file_name=f"diagnostico_{nombre.replace(' ', '_')}.csv",
-            mime="text/csv"
-        )
-else:
-    st.warning("Por favor, ingresa tu nombre completo antes de comenzar.")
+    st.subheader("7. Factorización")
+    st.latex("2x^2 - 8x + 6")
+    q7_factor = st.text_input("Factorización (usa formato (ax+b)(cx+d)):", key="q7_factor")
+
+    if st.button("Verificar Pregunta 7"):
+        if q7_factor.strip() in ["2(x-1)(x-3)", "(2x-2)(x-3)", "2(x-3)(x-1)"]:
+            st.success("✅ Correcto!")
+            st.session_state.score += 1
+        else:
+            st.error("❌ Incorrecto. Solución: 2(x-1)(x-3)")
+
+# Sección 3: Estática
+st.header("🏗️ Estática")
+with st.expander("Preguntas 11-15"):
+    st.subheader("11. Momento de una fuerza")
+    q11_def = st.text_area("Define momento de una fuerza y escribe su fórmula:", key="q11_def")
+
+    if st.button("Verificar Pregunta 11"):
+        if "fuerza" in q11_def.lower() and "distancia" in q11_def.lower() and ("M = F*d" in q11_def or "M=F*d" in q11_def):
+            st.success("✅ Correcto!")
+            st.session_state.score += 1
+        else:
+            st.error("❌ Respuesta esperada: Momento = Fuerza × Distancia perpendicular (M = F·d)")
+
+    st.subheader("15. Tipo de apoyo")
+    q15_apoyo = st.radio(
+        "Apoyo que restringe traslación vertical pero permite rotación:",
+        ["Empotrado", "Articulado", "Rodillo"],
+        key="q15_apoyo"
+    )
+
+    if st.button("Verificar Pregunta 15"):
+        if q15_apoyo == "Rodillo":
+            st.success("✅ Correcto!")
+            st.session_state.score += 1
+        else:
+            st.error("❌ Incorrecto. La respuesta correcta es: Rodillo")
+
+# Mostrar puntaje
+st.markdown(f"""
+## 📊 Puntaje Total: {st.session_state.score}/15
+""")
+
+if st.button("Reiniciar Examen"):
+    st.session_state.score = 0
+    st.experimental_rerun()
